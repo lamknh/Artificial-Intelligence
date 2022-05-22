@@ -27,12 +27,14 @@ class SearchProblem:
     You do not need to change anything in this class, ever.
     """
 
+    # return start state of search problem
     def getStartState(self):
         """
         Returns the start state for the search problem.
         """
         util.raiseNotDefined()
 
+    # return true of valid goal
     def isGoalState(self, state):
         """
           state: Search state
@@ -41,6 +43,8 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+    # return (successor, action, stepCost)
+    # State: (5, 5) then Start's successors: [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
     def getSuccessors(self, state):
         """
           state: Search state
@@ -52,6 +56,7 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+    # return total cost of certain action
     def getCostOfActions(self, actions):
         """
          actions: A list of actions to take
@@ -72,6 +77,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+# CODE HERE!
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -87,7 +93,40 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # DFS uses stack
+    stack = util.Stack()
+    # initial state into stack
+    stack.push(problem.getStartState())
+    
+    # DFS
+    visited = []
+    visited.append(problem.getStartState())
+    
+    paths = {}
+    paths[problem.getStartState()] = []
+    
+    # DFS actions
+    while (not stack.isEmpty()):
+        current = stack.pop()
+        # visit check
+        visited.append(current)
+        
+        # reaches goal -> return path
+        if problem.isGoalState(current):
+            return paths[current]
+        neighbors = problem.getSuccessors(current)
+
+        # condition check
+        if len(neighbors) > 0:
+            # every neighbor nodes
+            for successor in neighbors:
+                # not visited
+                if successor[0] not in visited:
+                    paths[successor[0]] = paths[current] + [successor[1]]
+                    stack.push(successor[0])
+                    
+    # util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -106,10 +145,38 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+# heuristic = distance
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    # lowest priority
+    pq = util.PriorityQueue()
+    pq.push(problem.getStartState(), 0)
+    
+    paths = {}
+    paths[problem.getStartState()] = []
+    
+    while (not pq.isEmpty()):
+        current = pq.pop()
+        
+        if problem.isGoalState(current):
+            return paths[current]
+        
+        neighbors = problem.getSuccessors(current)
+
+        if len(neighbors) > 0:
+            for successor in neighbors:
+                if successor[0] not in paths.keys():
+                    paths[successor[0]] = paths[current] + [successor[1]]
+                    pq.push(successor[0], problem.getCostOfActions(paths[successor[0]]) + heuristic(successor[0], problem))
+                else:
+                    orig = problem.getCostOfActions(paths[current] + [successor[1]]) + heuristic(successor[0], problem)
+                    if orig < problem.getCostOfActions(paths[successor[0]]):
+                        paths[successor[0]] = paths[current] + [successor[1]]
+                        pq.push(successor[0], problem.getCostOfActions(paths[successor[0]]) + heuristic(successor[0], problem))
+    
+    # util.raiseNotDefined()
 
 
 # Abbreviations

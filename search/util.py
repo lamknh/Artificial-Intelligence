@@ -131,6 +131,7 @@ class FixedRandom:
  Data structures useful for implementing SearchAgents
 """
 
+# use Stack, Queue, PriorityQueue
 class Stack:
     "A container with a last-in-first-out (LIFO) queuing policy."
     def __init__(self):
