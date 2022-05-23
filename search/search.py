@@ -77,23 +77,7 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-# CODE HERE!
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first.
-
-    Your search algorithm needs to return a list of actions that reaches the
-    goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
-    """
-    "*** YOUR CODE HERE ***"
-    
     # DFS uses stack
     stack = util.Stack()
     # initial state into stack
@@ -115,18 +99,18 @@ def depthFirstSearch(problem):
         # reaches goal -> return path
         if problem.isGoalState(current):
             return paths[current]
+        
+        # (successor, action, stepCost)
         neighbors = problem.getSuccessors(current)
-
-        # condition check
-        if len(neighbors) > 0:
-            # every neighbor nodes
-            for successor in neighbors:
-                # not visited
-                if successor[0] not in visited:
-                    paths[successor[0]] = paths[current] + [successor[1]]
-                    stack.push(successor[0])
-                    
-    # util.raiseNotDefined()
+        
+        for successor in neighbors:
+            # not visited
+            if successor[0] not in visited:
+                # successor[0] = successor / successor[1] = action : find path
+                # save path
+                paths[successor[0]] = paths[current] + [successor[1]]
+                # DFS
+                stack.push(successor[0])
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -147,36 +131,32 @@ def nullHeuristic(state, problem=None):
 
 # heuristic = distance
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    
-    # lowest priority
+    visited = []
+    # longest distance as possible
     pq = util.PriorityQueue()
-    pq.push(problem.getStartState(), 0)
+    paths = []
     
-    paths = {}
-    paths[problem.getStartState()] = []
+    pq.push((problem.getStartState(), paths), 0)
     
-    while (not pq.isEmpty()):
-        current = pq.pop()
+    # A* Search
+    while not pq.isEmpty():
+        next_node, paths = pq.pop()
         
-        if problem.isGoalState(current):
-            return paths[current]
+        # reaches goal
+        if problem.isGoalState(next_node):
+            return paths
         
-        neighbors = problem.getSuccessors(current)
-
-        if len(neighbors) > 0:
-            for successor in neighbors:
-                if successor[0] not in paths.keys():
-                    paths[successor[0]] = paths[current] + [successor[1]]
-                    pq.push(successor[0], problem.getCostOfActions(paths[successor[0]]) + heuristic(successor[0], problem))
-                else:
-                    orig = problem.getCostOfActions(paths[current] + [successor[1]]) + heuristic(successor[0], problem)
-                    if orig < problem.getCostOfActions(paths[successor[0]]):
-                        paths[successor[0]] = paths[current] + [successor[1]]
-                        pq.push(successor[0], problem.getCostOfActions(paths[successor[0]]) + heuristic(successor[0], problem))
-    
-    # util.raiseNotDefined()
+        # not searched node
+        if next_node not in visited:
+            successors = problem.getSuccessors(next_node)
+            for child in successors:
+                if child[0] not in visited:
+                    # A* Search
+                    # heuristic = distance method
+                    cost = problem.getCostOfActions(paths + [child[1]]) + heuristic(child[0], problem)
+                    pq.push((child[0], paths + [child[1]]), cost)
+                    
+        visited.append(next_node)
 
 
 # Abbreviations
